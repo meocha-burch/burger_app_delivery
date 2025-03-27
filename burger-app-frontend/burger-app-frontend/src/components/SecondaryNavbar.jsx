@@ -47,9 +47,6 @@ const SecondaryNavbar = () => {
   return (
     <SecondaryNavWrapper>
       <SecondaryNav>
-        <SecondaryNavLink to="/deals">Login</SecondaryNavLink>
-        <SecondaryNavLink to="/about">About</SecondaryNavLink>
-        <SecondaryNavLink to="/careers">Signup</SecondaryNavLink>
       </SecondaryNav>
       <Tagline>🔥 Fresh Ingredients, Legendary Taste. Order Now! 🍔</Tagline>
     </SecondaryNavWrapper>

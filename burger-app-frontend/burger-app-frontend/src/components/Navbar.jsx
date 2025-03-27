@@ -13,7 +13,7 @@ const NavbarContainer = styled.nav`
 `;
 
 const Logo = styled.img`
-  width: 90px;
+  width: 120px;
   cursor: pointer;
 `;
 
@@ -35,13 +35,25 @@ const NavLink = styled(Link)`
   }
 `;
 
-const Navbar = () => {
+const CartBadge = styled.span`
+  background: red;
+  color: white;
+  font-size: 12px;
+  padding: 3px 7px;
+  border-radius: 50%;
+  margin-left: 5px;
+`;
+
+const Navbar = ({ cartCount }) => {
   return (
     <NavbarContainer>
       <Logo src={logo} alt="Burger Quest Logo" />
       <NavLinks>
         <NavLink to="/">Home</NavLink>
         <NavLink to="/menu">Menu</NavLink>
+        <NavLink to="/cart">
+          Cart {cartCount > 0 && <CartBadge>{cartCount}</CartBadge>}
+        </NavLink>
         <NavLink to="/order">Order</NavLink>
         <NavLink to="/contact">Contact</NavLink>
       </NavLinks>
