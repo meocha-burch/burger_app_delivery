@@ -1,55 +1,83 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext"; // ✅ Ensure correct import
+
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+
 import PrivateRoute from "./components/PrivateRoute";
 import Navbar from "./components/Navbar";
-import SecondaryNavbar from "./components/SecondaryNavbar";
-import TextNavbar from "./components/TextNavbar";  // ✅ Import Third Navbar
+import TagLineBar from "./components/TagLineBar";
+import TextNavbar from "./components/TextNavbar";
+import Footer from "./components/Footer";
+
 import Home from "./pages/Home";
-import MenuPage from "./pages/MenuPage";
+import Menu from "./pages/Menu";
+import CartPage from "./pages/CartPage";
 import OrderPage from "./pages/OrderPage";
-import Profile from "./pages/Profile";
-import Checkout from "./components/Checkout";
+import ProfilePage from "./pages/ProfilePage";
+import CheckoutPage from "./pages/CheckoutPage";
 import ContactPage from "./pages/ContactPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
 const App = () => {
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(() => {
+    const savedCart = localStorage.getItem("cartItems");
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    console.log("Updated cartItems in localStorage:", cartItems); // ✅ Debugging log
+  }, [cartItems]);
+
+  // ✅ Debugging log to check cart data
+  console.log("App.js cartItems state:", cartItems);
 
   const addToCart = (item) => {
-    setCartItems((prevItems) => [...prevItems, item]);
+    setCartItems((prevCart) => [...prevCart, item]);
+  };
+
+  const removeFromCart = (index) => {
+    setCartItems((prevItems) => prevItems.filter((_, i) => i !== index));
   };
 
   return (
-    <AuthProvider>
-      <Router>
-        {/* Primary Navbar */}
-        <Navbar />
-
-        {/* Secondary Navbar (Green) */}
-        <SecondaryNavbar />
-
-        {/* Third Navbar (Text Only) */}
+    <Router> {/* ✅ Router should wrap everything */}
+      <AuthProvider> {/* ✅ AuthProvider inside Router to avoid context issues */}
+        <Navbar cartCount={cartItems.length} />
+        <TagLineBar />
         <TextNavbar />
 
         <Routes>
-          {/* Public Routes */}
           <Route path="/" element={<Home />} />
-          <Route path="/menu" element={<MenuPage />} />
-          <Route path="/order" element={<OrderPage />} />
+          <Route path="/menu" element={<Menu addToCart={addToCart} />} />
+          <Route path="/cart" element={<CartPage cartItems={cartItems} removeFromCart={removeFromCart} />} />
+          <Route path="/order" element={<OrderPage cartItems={cartItems} removeFromCart={removeFromCart} />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/deals" element={<h1>Deals Page</h1>} />
           <Route path="/about" element={<h1>About Us</h1>} />
 
           {/* Protected Routes */}
-          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-          <Route path="/checkout" element={<PrivateRoute><Checkout cartItems={cartItems} /></PrivateRoute>} />
+          <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+
+          {/* ✅ Stripe Elements only wraps the CheckoutPage */}
+          <Route path="/checkout" element={
+            <PrivateRoute>
+              <Elements stripe={stripePromise}>
+                <CheckoutPage cartItems={cartItems} />
+              </Elements>
+            </PrivateRoute>
+          } />
         </Routes>
-      </Router>
-    </AuthProvider>
+
+        <Footer />
+      </AuthProvider>
+    </Router>
   );
 };
 

@@ -1,6 +1,10 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import PropTypes from "prop-types";
 
+// Styled Components
 const CheckoutContainer = styled.div`
   padding: 20px;
   max-width: 800px;
@@ -57,6 +61,88 @@ const Button = styled.button`
   }
 `;
 
+// Load Stripe outside the component to prevent re-initialization
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+
+// Payment Form Component
+const PaymentForm = ({ amount }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handlePayment = async (e) => {
+    e.preventDefault();
+
+    if (!stripe || !elements) {
+      alert("Stripe is not loaded yet. Please wait.");
+      return;
+    }
+
+    setIsProcessing(true);
+    const cardElement = elements.getElement(CardElement);
+
+    try {
+      // Create payment method
+      const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: "card",
+        card: cardElement,
+      });
+
+      if (error) {
+        console.error(error);
+        alert("Payment failed. Please try again.");
+        setIsProcessing(false);
+        return;
+      }
+
+      // Send payment request to the server
+      const response = await fetch("http://localhost:5000/api/create-payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create payment intent");
+      }
+
+      const { clientSecret } = await response.json();
+
+      // Confirm the payment
+      const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: paymentMethod.id,
+      });
+
+      if (confirmError) {
+        console.error(confirmError);
+        alert("Payment failed. Please try again.");
+      } else if (paymentIntent.status === "succeeded") {
+        alert("Payment successful!");
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      alert("An error occurred during payment.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handlePayment}>
+      <CardElement />
+      <Button type="submit" disabled={!stripe || isProcessing}>
+        {isProcessing ? "Processing..." : "Pay Now"}
+      </Button>
+    </form>
+  );
+};
+
+// ✅ Define PropTypes for PaymentForm (outside function)
+PaymentForm.propTypes = {
+  amount: PropTypes.number.isRequired, // Ensure amount is a required number
+};
+
+// Checkout Component
 const Checkout = ({ cartItems }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -64,12 +150,12 @@ const Checkout = ({ cartItems }) => {
   const [payment, setPayment] = useState("credit-card");
 
   // Calculate the total price
-  const total = cartItems.reduce((acc, item) => acc + parseFloat(item.price), 0).toFixed(2);
+  const total = cartItems
+    .reduce((acc, item) => acc + parseFloat(item.price) * (item.quantity || 1), 0)
+    .toFixed(2);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert(`Order placed for ${name}`);
-  };
+  // Convert total to cents for Stripe
+  const amountInCents = Math.round(parseFloat(total) * 100);
 
   return (
     <CheckoutContainer>
@@ -79,33 +165,65 @@ const Checkout = ({ cartItems }) => {
         <h3>Cart Summary</h3>
         {cartItems.map((item, index) => (
           <CartItem key={index}>
-            <span>{item.name}</span>
-            <span>${item.price}</span>
+            <span>{item.name} (x{item.quantity || 1})</span>
+            <span>${(item.price * (item.quantity || 1)).toFixed(2)}</span>
           </CartItem>
         ))}
         <Total>Total: ${total}</Total>
       </CartSummary>
 
-      <form onSubmit={handleSubmit}>
-        <InputField type="text" placeholder="Enter your name" value={name} onChange={(e) => setName(e.target.value)} required />
-        <InputField type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <InputField type="text" placeholder="Enter your address" value={address} onChange={(e) => setAddress(e.target.value)} required />
+      <form>
+        <InputField
+          type="text"
+          placeholder="Enter your name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <InputField
+          type="email"
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <InputField
+          type="text"
+          placeholder="Enter your address"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          required
+        />
 
         <div>
           <label>
-            <input type="radio" value="credit-card" checked={payment === "credit-card"} onChange={() => setPayment("credit-card")} />
+            <input
+              type="radio"
+              value="credit-card"
+              checked={payment === "credit-card"}
+              onChange={() => setPayment("credit-card")}
+            />
             Credit Card
-          </label>
-          <label>
-            <input type="radio" value="paypal" checked={payment === "paypal"} onChange={() => setPayment("paypal")} />
-            PayPal
           </label>
         </div>
 
-        <Button type="submit">Place Order</Button>
+        <Elements stripe={stripePromise}>
+          <PaymentForm amount={amountInCents} />
+        </Elements>
       </form>
     </CheckoutContainer>
   );
+};
+
+// ✅ PropTypes validation for Checkout
+Checkout.propTypes = {
+  cartItems: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      price: PropTypes.number.isRequired,
+      quantity: PropTypes.number, // Optional
+    })
+  ).isRequired,
 };
 
 export default Checkout;
