@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types"; // Import PropTypes for validation
 
 const CartContainer = styled.div`
   background-color: #f8f9fa;
@@ -87,6 +88,15 @@ const CheckoutButton = styled.button`
 const CartPage = ({ cartItems, removeFromCart }) => {
   const navigate = useNavigate();
 
+  const handleProceedToCheckout = () => {
+    console.log("Proceed to Checkout clicked. Cart items:", cartItems); // Debugging log
+    if (cartItems.length === 0) {
+      alert("Your cart is empty! Add items before checking out.");
+    } else {
+      navigate("/checkout"); // Navigate to checkout page
+    }
+  };
+
   return (
     <CartContainer>
       <Title>Shopping Cart</Title>
@@ -111,10 +121,18 @@ const CartPage = ({ cartItems, removeFromCart }) => {
         </CartItems>
       )}
       {cartItems.length > 0 && (
-        <CheckoutButton onClick={() => navigate("/order")}>Proceed to Checkout</CheckoutButton>
+        <CheckoutButton onClick={handleProceedToCheckout}>
+          Proceed to Checkout
+        </CheckoutButton>
       )}
     </CartContainer>
   );
+};
+
+// Prop validation for CartPage
+CartPage.propTypes = {
+  cartItems: PropTypes.array.isRequired, // Ensure cartItems is an array
+  removeFromCart: PropTypes.func.isRequired, // Ensure removeFromCart is a function
 };
 
 export default CartPage;

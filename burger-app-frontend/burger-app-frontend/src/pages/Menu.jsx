@@ -1,6 +1,7 @@
 import React from "react";
+import PropTypes from "prop-types"; // ✅ Import PropTypes for prop validation
 import styled from "styled-components";
-import BurgerImage from "../assets/classic-cheeseburger.jpg"; // Replace with actual image paths
+import BurgerImage from "../assets/classic-cheeseburger.jpg"; 
 import DeluxeBurger from "../assets/deluxe-burger.jpg";
 import VeggieBurger from "../assets/veggie-burger.jpg";
 import FriesImage from "../assets/fries.jpg";
@@ -10,7 +11,7 @@ import MilkShake from "../assets/chocolate-shake.jpg";
 import IceCreamImage from "../assets/ice-cream.jpg";
 import ChocolateIceCream from "../assets/choco-icecream.jpg";
 
-
+// Styled Components
 const MenuContainer = styled.div`
   background-color: black;
   color: white;
@@ -98,15 +99,15 @@ const AddToCartButton = styled.button`
 
 const Menu = ({ addToCart }) => {
   const menuItems = [
-    { name: "Classic Cheeseburger", price: 8.99, image: BurgerImage },
-    { name: "BBQ Bacon Burger", price: 10.99, image: DeluxeBurger },
-    { name: "Veggie Delight", price: 7.99, image: VeggieBurger },
-    { name: "Classic Fries", price: 3.99, image: FriesImage },
-    { name: "Cheese Fries", price: 4.99, image: CheeseFries },
-    { name: "Soft Drink", price: 1.99, image: DrinkImage },
-    { name: "Chocolate Milkshake", price: 4.99, image: MilkShake },
-    { name: "Vanilla Ice Cream", price: 3.49, image: IceCreamImage },
-    { name: "Chocolate Ice Cream", price: 3.49, image: ChocolateIceCream },
+    { id: 1, name: "Classic Cheeseburger", price: 8.99, image: BurgerImage },
+    { id: 2, name: "BBQ Bacon Burger", price: 10.99, image: DeluxeBurger },
+    { id: 3, name: "Veggie Delight", price: 7.99, image: VeggieBurger },
+    { id: 4, name: "Classic Fries", price: 3.99, image: FriesImage },
+    { id: 5, name: "Cheese Fries", price: 4.99, image: CheeseFries },
+    { id: 6, name: "Soft Drink", price: 1.99, image: DrinkImage },
+    { id: 7, name: "Chocolate Milkshake", price: 4.99, image: MilkShake },
+    { id: 8, name: "Vanilla Ice Cream", price: 3.49, image: IceCreamImage },
+    { id: 9, name: "Chocolate Ice Cream", price: 3.49, image: ChocolateIceCream },
   ];
 
   return (
@@ -116,8 +117,8 @@ const Menu = ({ addToCart }) => {
       <Category>
         <CategoryTitle>Burgers</CategoryTitle>
         <MenuGrid>
-          {menuItems.slice(0, 3).map((item, index) => (
-            <MenuItem key={index}>
+          {menuItems.slice(0, 3).map((item) => (
+            <MenuItem key={item.id}>
               <ItemImage src={item.image} alt={item.name} />
               <ItemName>{item.name}</ItemName>
               <ItemPrice>${item.price.toFixed(2)}</ItemPrice>
@@ -130,8 +131,8 @@ const Menu = ({ addToCart }) => {
       <Category>
         <CategoryTitle>Fries</CategoryTitle>
         <MenuGrid>
-          {menuItems.slice(3, 5).map((item, index) => (
-            <MenuItem key={index}>
+          {menuItems.slice(3, 5).map((item) => (
+            <MenuItem key={item.id}>
               <ItemImage src={item.image} alt={item.name} />
               <ItemName>{item.name}</ItemName>
               <ItemPrice>${item.price.toFixed(2)}</ItemPrice>
@@ -144,8 +145,8 @@ const Menu = ({ addToCart }) => {
       <Category>
         <CategoryTitle>Drinks</CategoryTitle>
         <MenuGrid>
-          {menuItems.slice(5, 7).map((item, index) => (
-            <MenuItem key={index}>
+          {menuItems.slice(5, 7).map((item) => (
+            <MenuItem key={item.id}>
               <ItemImage src={item.image} alt={item.name} />
               <ItemName>{item.name}</ItemName>
               <ItemPrice>${item.price.toFixed(2)}</ItemPrice>
@@ -158,8 +159,8 @@ const Menu = ({ addToCart }) => {
       <Category>
         <CategoryTitle>Ice Cream</CategoryTitle>
         <MenuGrid>
-          {menuItems.slice(7).map((item, index) => (
-            <MenuItem key={index}>
+          {menuItems.slice(7).map((item) => (
+            <MenuItem key={item.id}>
               <ItemImage src={item.image} alt={item.name} />
               <ItemName>{item.name}</ItemName>
               <ItemPrice>${item.price.toFixed(2)}</ItemPrice>
@@ -172,4 +173,10 @@ const Menu = ({ addToCart }) => {
   );
 };
 
+// ✅ Add PropTypes validation
+Menu.propTypes = {
+  addToCart: PropTypes.func.isRequired, // Ensure addToCart is passed and is a function
+};
+
 export default Menu;
+

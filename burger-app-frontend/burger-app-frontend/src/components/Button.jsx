@@ -1,22 +1,15 @@
-import styled from "styled-components";
-
-const StyledButton = styled.button`
-  background-color: #ff6600;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: 0.3s ease-in-out;
-
-  &:hover {
-    background-color: #e65c00;
-  }
-`;
+import React from 'react'; // Add this if needed
+import PropTypes from 'prop-types'; // Import PropTypes for validation
 
 const Button = ({ children, onClick }) => {
-  return <StyledButton onClick={onClick}>{children}</StyledButton>;
+  return (
+    <button onClick={onClick}>{children}</button>
+  );
+};
+
+Button.propTypes = {
+  children: PropTypes.node.isRequired,  // Can accept any renderable content like string, number, or element
+  onClick: PropTypes.func.isRequired,   // Expects a function to handle clicks
 };
 
 export default Button;

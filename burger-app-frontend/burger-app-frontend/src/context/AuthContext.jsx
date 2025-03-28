@@ -1,21 +1,21 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import API from "../api"; // Import centralized Axios instance
+import PropTypes from "prop-types";
+import API from "../api"; 
 
-const AuthContext = createContext();
+// Create the AuthContext
+export const AuthContext = createContext(); // ✅ Ensure this is exported
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
-  // Check authentication status on mount
   useEffect(() => {
-    let isMounted = true; // Prevent memory leaks in async calls
+    let isMounted = true;
 
     const checkAuth = async () => {
       try {
-        const { data } = await API.get("/me"); // Uses API instance
+        const { data } = await API.get("/auth/me");
         if (isMounted) setUser(data);
       } catch (error) {
-        console.error("Auth check failed:", error);
         if (isMounted) setUser(null);
       }
     };
@@ -23,28 +23,25 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
 
     return () => {
-      isMounted = false; // Cleanup effect
+      isMounted = false;
     };
   }, []);
 
-  // Login function
   const login = async (credentials) => {
     try {
-      await API.post("/login", credentials);
-      const { data } = await API.get("/me"); // Fetch user info after login
+      await API.post("/auth/login", credentials);
+      const { data } = await API.get("/auth/me");
       setUser(data);
-      return true; // Return true on success
+      return true;
     } catch (error) {
-      console.error("Login failed:", error.response?.data?.message || error.message);
       setUser(null);
-      return false; // Return false on failure
+      return false;
     }
   };
 
-  // Logout function
   const logout = async () => {
     try {
-      await API.post("/logout");
+      await API.post("/auth/logout");
       setUser(null);
     } catch (error) {
       console.error("Logout failed:", error);
@@ -58,6 +55,12 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-const useAuth = () => useContext(AuthContext);
+// Prop validation
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
-export default useAuth
+// Custom Hook
+export const useAuth = () => useContext(AuthContext); // ✅ Ensure this is exported
+
+export default useAuth; // ✅ Default export

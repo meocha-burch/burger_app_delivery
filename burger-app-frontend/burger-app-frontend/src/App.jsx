@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext"; // ✅ Ensure correct import
+
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
 import PrivateRoute from "./components/PrivateRoute";
 import Navbar from "./components/Navbar";
-import SecondaryNavbar from "./components/SecondaryNavbar";
+import TagLineBar from "./components/TagLineBar";
 import TextNavbar from "./components/TextNavbar";
 import Footer from "./components/Footer";
 
@@ -14,64 +15,69 @@ import Home from "./pages/Home";
 import Menu from "./pages/Menu";
 import CartPage from "./pages/CartPage";
 import OrderPage from "./pages/OrderPage";
-import Profile from "./pages/Profile";
-import CheckoutPage from "./pages/CheckoutForm"; // ✅ Import new checkout page
+import ProfilePage from "./pages/ProfilePage";
+import CheckoutPage from "./pages/CheckoutPage";
 import ContactPage from "./pages/ContactPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 
-// ✅ Load Stripe with your publishable key
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const App = () => {
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(() => {
+    const savedCart = localStorage.getItem("cartItems");
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
 
-  // ✅ Function to add items to cart
+  useEffect(() => {
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    console.log("Updated cartItems in localStorage:", cartItems); // ✅ Debugging log
+  }, [cartItems]);
+
+  // ✅ Debugging log to check cart data
+  console.log("App.js cartItems state:", cartItems);
+
   const addToCart = (item) => {
     setCartItems((prevCart) => [...prevCart, item]);
   };
 
-  // ✅ Function to remove items from cart
   const removeFromCart = (index) => {
     setCartItems((prevItems) => prevItems.filter((_, i) => i !== index));
   };
 
   return (
-    <AuthProvider>
-      <Router>
-        {/* Primary Navbar */}
+    <Router> {/* ✅ Router should wrap everything */}
+      <AuthProvider> {/* ✅ AuthProvider inside Router to avoid context issues */}
         <Navbar cartCount={cartItems.length} />
-
-        {/* Secondary Navbar (Green) */}
-        <SecondaryNavbar />
-
-        {/* Third Navbar (Text Only) */}
+        <TagLineBar />
         <TextNavbar />
 
-        {/* ✅ Wrap CheckoutPage inside Stripe Elements */}
-        <Elements stripe={stripePromise}>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Home />} />
-            <Route path="/menu" element={<Menu addToCart={addToCart} />} />
-            <Route path="/cart" element={<CartPage cartItems={cartItems} removeFromCart={removeFromCart} />} />
-            <Route path="/order" element={<OrderPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/deals" element={<h1>Deals Page</h1>} />
-            <Route path="/about" element={<h1>About Us</h1>} />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/menu" element={<Menu addToCart={addToCart} />} />
+          <Route path="/cart" element={<CartPage cartItems={cartItems} removeFromCart={removeFromCart} />} />
+          <Route path="/order" element={<OrderPage cartItems={cartItems} removeFromCart={removeFromCart} />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/about" element={<h1>About Us</h1>} />
 
-            {/* Protected Routes */}
-            <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-            <Route path="/checkout" element={<PrivateRoute><CheckoutPage cartItems={cartItems} /></PrivateRoute>} />
-          </Routes>
-        </Elements>
+          {/* Protected Routes */}
+          <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
 
-        {/* Footer */}
+          {/* ✅ Stripe Elements only wraps the CheckoutPage */}
+          <Route path="/checkout" element={
+            <PrivateRoute>
+              <Elements stripe={stripePromise}>
+                <CheckoutPage cartItems={cartItems} />
+              </Elements>
+            </PrivateRoute>
+          } />
+        </Routes>
+
         <Footer />
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 };
 

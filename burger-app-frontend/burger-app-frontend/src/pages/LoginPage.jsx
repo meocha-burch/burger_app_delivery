@@ -1,42 +1,39 @@
-import { useState, useContext } from "react";
-import AuthContext from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { useAuth } from "../context/AuthContext"; // ✅ Use useAuth, NOT AuthContext
+import { AuthContext } from "../context/AuthContext"; // Adjust path if necessary
 
 const LoginPage = () => {
+  const { login } = useContext(AuthContext); // Get login function from context
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // const { login } = useContext(AuthContext);
-  const navigate = useNavigate();
+  const [error, setError] = useState(""); // For handling errors
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await login({ email, password }); // Pass an object
-    if (success) {
-      navigate("/menu"); // Redirect to menu after login
-    } else {
-      alert("Invalid credentials");
+    try {
+      await login(email, password); // Call login function from context
+      // Redirect or show success message
+    } catch (err) {
+      setError("Invalid credentials, please try again.");
     }
   };
 
   return (
     <div>
-      <h2>Login</h2>
+      <h1>Login</h1>
+      {error && <p style={{ color: "red" }}>{error}</p>} {/* Error message */}
       <form onSubmit={handleSubmit}>
         <input
           type="email"
-          name="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          required
         />
         <input
           type="password"
-          name="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          required
         />
         <button type="submit">Login</button>
       </form>

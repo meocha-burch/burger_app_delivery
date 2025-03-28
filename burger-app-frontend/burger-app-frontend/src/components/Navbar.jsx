@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
-import logo from "../assets/delivery-logo.jpg"; // Ensure the path is correct
+import { Link, useNavigate } from "react-router-dom";
+import logo from "../assets/delivery-logo.jpg";
+import PropTypes from "prop-types";
+import { AuthContext } from "../context/AuthContext"; // Ensure this matches the export in AuthContext
 
 const NavbarContainer = styled.nav`
   background-color: black;
@@ -45,20 +47,50 @@ const CartBadge = styled.span`
 `;
 
 const Navbar = ({ cartCount }) => {
+  const navigate = useNavigate(); // Used for Logout redirection
+  const authContext = useContext(AuthContext); // Handle undefined context safely
+  const user = authContext?.user; // Avoids destructuring error if context is undefined
+  const logout = authContext?.logout; // Logout function from context
+
+  const handleLogout = () => {
+    if (logout) {
+      logout();
+      navigate("/login"); // Redirect after logout
+    }
+  };
+
   return (
     <NavbarContainer>
       <Logo src={logo} alt="Burger Quest Logo" />
       <NavLinks>
         <NavLink to="/">Home</NavLink>
         <NavLink to="/menu">Menu</NavLink>
+        {user && <NavLink to="/profile">Profile</NavLink>}
         <NavLink to="/cart">
           Cart {cartCount > 0 && <CartBadge>{cartCount}</CartBadge>}
         </NavLink>
         <NavLink to="/order">Order</NavLink>
         <NavLink to="/contact">Contact</NavLink>
+        {user ? (
+          <NavLink as="button" onClick={handleLogout} style={{ background: "none", border: "none", color: "white", cursor: "pointer" }}>
+            Logout
+          </NavLink>
+        ) : (
+          <NavLink to="/login">Login</NavLink>
+        )}
       </NavLinks>
     </NavbarContainer>
   );
+};
+
+// PropTypes validation
+Navbar.propTypes = {
+  cartCount: PropTypes.number,
+};
+
+// Default props
+Navbar.defaultProps = {
+  cartCount: 0,
 };
 
 export default Navbar;
