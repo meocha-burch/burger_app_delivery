@@ -2,12 +2,11 @@ import mongoose from "mongoose";
 
 const UserSchema = new mongoose.Schema(
   {
-
     username: { 
       type: String, 
-      required: true,  // ✅ Ensure username is required
-      unique: true,    // ✅ Prevent duplicate usernames
-      trim: true       // ✅ Remove whitespace from both ends
+      trim: true, 
+      unique: true, 
+      sparse: true, // ✅ Prevents duplicate error if `null`
     },
     name: { 
       type: String, 
@@ -19,15 +18,28 @@ const UserSchema = new mongoose.Schema(
       required: true, 
       unique: true, 
       trim: true, 
-      match: [/^\S+@\S+\.\S+$/, "Invalid email format"], // ✅ Email validation
+      lowercase: true, // ✅ Make emails case-insensitive
+      validate: {
+        validator: function (email) {
+          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        },
+        message: "Invalid email format",
+      },
     },
     password: { 
       type: String, 
       required: true, 
-      select: true   // ✅ Hide password by default in queries
+      select: false // ✅ Hide password in queries by default
     },
   }, 
-  { timestamps: true } // ✅ Adds createdAt & updatedAt fields
+  { timestamps: true } // ✅ Adds `createdAt` & `updatedAt`
 );
+
+// ✅ Ensure passwords are hidden in queries unless explicitly selected
+UserSchema.methods.toJSON = function () {
+  const obj = this.toObject();
+  delete obj.password;
+  return obj;
+};
 
 export default mongoose.model("User", UserSchema);

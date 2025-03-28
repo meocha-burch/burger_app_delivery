@@ -1,16 +1,21 @@
+// middleware/authMiddleware.js
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
-const verifyToken = (req, res, next) => {
-  const token = req.cookies?.token; // ✅ Ensure token exists
-  if (!token) return res.status(401).json({ error: "Unauthorized" });
+export const verifyToken = (req, res, next) => {
+  const token = req.cookies.token || req.header("Authorization")?.replace("Bearer ", "");
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) return res.status(403).json({ error: "Invalid token" });
-    req.user = decoded;
-    next();
-  });
+  if (!token) {
+    return res.status(403).json({ message: "Access denied. No token provided." });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    req.user = decoded; // Attach the decoded token to the request object
+    next(); // Proceed to the next middleware or route handler
+  } catch (error) {
+    console.error("Token verification error:", error);
+    return res.status(401).json({ message: "Invalid token." });
+  }
 };
-
-export default verifyToken; // ✅ Correct ES Module export
-
-
