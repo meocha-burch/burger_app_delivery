@@ -9,18 +9,20 @@ const NavbarContainer = styled.nav`
   background-color: black;
   padding: 15px 10%;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 10px;
   box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.1);
 `;
 
 const Logo = styled.img`
   width: 120px;
   cursor: pointer;
+  align-self: center;
 `;
 
 const NavLinks = styled.div`
   display: flex;
+  justify-content: center;
   gap: 20px;
 `;
 
@@ -35,6 +37,12 @@ const NavLink = styled(Link)`
     color: #ffcc00;
     transform: scale(1.1);
   }
+`;
+
+const UserNavLinks = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 20px;
 `;
 
 const CartBadge = styled.span`
@@ -65,20 +73,24 @@ const Navbar = ({ cartCount }) => {
       <NavLinks>
         <NavLink to="/">Home</NavLink>
         <NavLink to="/menu">Menu</NavLink>
-        {user && <NavLink to="/profile">Profile</NavLink>}
-        <NavLink to="/cart">
-          Cart {cartCount > 0 && <CartBadge>{cartCount}</CartBadge>}
-        </NavLink>
         <NavLink to="/order">Order</NavLink>
         <NavLink to="/contact">Contact</NavLink>
-        {user ? (
+      </NavLinks>
+
+      {/* User-related links */}
+      <UserNavLinks>
+        {user && <NavLink to="/profile">Profile</NavLink>}
+        {!user ? (
+          <>
+            <NavLink to="/login">Login</NavLink>
+            <NavLink to="/register">Sign Up</NavLink>
+          </>
+        ) : (
           <NavLink as="button" onClick={handleLogout} style={{ background: "none", border: "none", color: "white", cursor: "pointer" }}>
             Logout
           </NavLink>
-        ) : (
-          <NavLink to="/login">Login</NavLink>
         )}
-      </NavLinks>
+      </UserNavLinks>
     </NavbarContainer>
   );
 };

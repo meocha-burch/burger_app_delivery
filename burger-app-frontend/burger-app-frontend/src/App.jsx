@@ -13,7 +13,6 @@ import Footer from "./components/Footer";
 
 import Home from "./pages/Home";
 import Menu from "./pages/Menu";
-import CartPage from "./pages/CartPage";
 import OrderPage from "./pages/OrderPage";
 import ProfilePage from "./pages/ProfilePage";
 import CheckoutPage from "./pages/CheckoutPage";
@@ -55,8 +54,8 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/menu" element={<Menu addToCart={addToCart} />} />
-          <Route path="/cart" element={<CartPage cartItems={cartItems} removeFromCart={removeFromCart} />} />
           <Route path="/order" element={<OrderPage cartItems={cartItems} removeFromCart={removeFromCart} />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />

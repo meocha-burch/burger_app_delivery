@@ -67,15 +67,16 @@ const CheckoutButton = styled.button`
 const OrderPage = ({ cartItems, removeFromCart }) => {
   const navigate = useNavigate();
 
+  const totalPrice = cartItems.reduce((total, item) => total + item.price * (item.quantity || 1), 0);
+
   const handleCheckout = () => {
     if (cartItems.length === 0) {
       alert("Your cart is empty! Add items before proceeding.");
       return;
     }
-    navigate("/checkout");
-  };
 
-  const totalPrice = cartItems.reduce((total, item) => total + item.price, 0);
+    navigate("/checkout", { state: { cartItems, totalPrice } }); // Use totalPrice instead of totalAmount
+  };
 
   return (
     <OrderContainer>
@@ -86,9 +87,11 @@ const OrderPage = ({ cartItems, removeFromCart }) => {
       ) : (
         <>
           <OrderList>
-            {cartItems.map((item) => (
-              <OrderItem key={item.id}>
-                <span>{item.name} - ${item.price.toFixed(2)}</span>
+            {cartItems.map((item, index) => (
+              <OrderItem key={item.id || `cart-item-${index}`}>
+                <span>
+                  {item.name} - ${item.price.toFixed(2)} {item.quantity ? `x ${item.quantity}` : ""}
+                </span>
                 <RemoveButton onClick={() => removeFromCart(item.id)}>Remove</RemoveButton>
               </OrderItem>
             ))}
@@ -107,12 +110,13 @@ const OrderPage = ({ cartItems, removeFromCart }) => {
 OrderPage.propTypes = {
   cartItems: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.string.isRequired,
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired, // Ensure id is unique
       name: PropTypes.string.isRequired,
       price: PropTypes.number.isRequired,
+      quantity: PropTypes.number, // Optional quantity field
     })
-  ).isRequired, // Validate that cartItems is an array of objects with specific properties
-  removeFromCart: PropTypes.func.isRequired, // Validate that removeFromCart is a function
+  ).isRequired,
+  removeFromCart: PropTypes.func.isRequired,
 };
 
 export default OrderPage;
