@@ -1,145 +1,117 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import axios from "axios";
 
 const ContactContainer = styled.div`
-  padding: 40px 10%;
+  background-color: black;
+  color: white;
   min-height: 100vh;
-  background-color: #f8f9fa;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 `;
 
-const Title = styled.h1`
-  text-align: center;
-  margin-bottom: 20px;
+const ContactTitle = styled.h1`
   font-size: 2.5rem;
+  color: #ffcc00;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 `;
 
-const FormContainer = styled.div`
+const ContactForm = styled.form`
+  background-color: #333;
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 600px;
   display: flex;
   flex-direction: column;
   gap: 15px;
-  max-width: 600px;
-  margin: 0 auto;
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
-const Label = styled.label`
-  font-size: 1.1rem;
-  margin-bottom: 5px;
-`;
-
-const Input = styled.input`
-  padding: 12px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
+const InputField = styled.input`
+  padding: 10px;
+  border: none;
   border-radius: 5px;
+  background-color: #444;
+  color: white;
+  font-size: 1rem;
+  &:focus {
+    outline: 2px solid #ffcc00;
+  }
 `;
 
 const TextArea = styled.textarea`
-  padding: 12px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
+  padding: 10px;
+  border: none;
   border-radius: 5px;
+  background-color: #444;
+  color: white;
+  font-size: 1rem;
   min-height: 150px;
+  resize: none;
+  &:focus {
+    outline: 2px solid #ffcc00;
+  }
 `;
 
 const SubmitButton = styled.button`
+  background-color: #ffcc00;
+  color: black;
+  font-size: 1.2rem;
   padding: 12px;
-  background-color: #007bff;
-  color: white;
-  font-size: 1rem;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+  
   &:hover {
-    background-color: #0056b3;
+    background-color: #e6b800;
   }
 `;
 
 const ContactPage = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false); // For form submission status
-  const [responseMessage, setResponseMessage] = useState(""); // For success/failure messages
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setIsSubmitting(true); // Start submitting
-
-    try {
-      // Send form data to the backend (change the URL to your actual API endpoint)
-      const response = await axios.post("http://your-backend-url/api/contact", formData);
-      
-      // Handle successful submission
-      if (response.status === 200) {
-        setResponseMessage("Thank you for contacting us! We will get back to you soon.");
-        setFormData({ name: "", email: "", message: "" }); // Clear the form fields
-      } else {
-        setResponseMessage("Something went wrong. Please try again later.");
-      }
-    } catch (error) {
-      // Handle errors
-      console.error("Error submitting contact form:", error);
-      setResponseMessage("Something went wrong. Please try again later.");
-    } finally {
-      setIsSubmitting(false); // Stop submitting
-    }
+    // Handle form submission logic (e.g., send message to an API or email)
+    alert("Message sent!");
+    setName("");
+    setEmail("");
+    setMessage("");
   };
 
   return (
     <ContactContainer>
-      <Title>Contact Us</Title>
-      <FormContainer>
-        <form onSubmit={handleSubmit}>
-          <div>
-            <Label htmlFor="name">Full Name</Label>
-            <Input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="email">Email Address</Label>
-            <Input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="message">Message</Label>
-            <TextArea
-              id="message"
-              name="message"
-              value={formData.message}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <SubmitButton type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : "Submit"}
-          </SubmitButton>
-        </form>
-        {responseMessage && <p>{responseMessage}</p>}
-      </FormContainer>
+      <ContactTitle>Contact Us</ContactTitle>
+      <ContactForm onSubmit={handleSubmit}>
+        <InputField
+          type="text"
+          placeholder="Your Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <InputField
+          type="email"
+          placeholder="Your Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <TextArea
+          placeholder="Your Message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          required
+        />
+        <SubmitButton type="submit">Send Message</SubmitButton>
+      </ContactForm>
     </ContactContainer>
   );
 };

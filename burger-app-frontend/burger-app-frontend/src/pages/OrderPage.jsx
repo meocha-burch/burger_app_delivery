@@ -1,7 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import PropTypes from "prop-types"; // Import PropTypes for validation
+import PropTypes from "prop-types";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import CheckoutPageWithStripe from "../pages/CheckoutPage"; 
 
 const OrderContainer = styled.div`
   background-color: black;
@@ -20,8 +22,9 @@ const OrderTitle = styled.h1`
 `;
 
 const OrderList = styled.ul`
-  list-style: none;
+  list-style-type: none;
   padding: 0;
+  margin: 0;
 `;
 
 const OrderItem = styled.li`
@@ -67,28 +70,30 @@ const CheckoutButton = styled.button`
 const OrderPage = ({ cartItems, removeFromCart }) => {
   const navigate = useNavigate();
 
+  const totalPrice = cartItems.reduce((total, item) => total + item.price * (item.quantity || 1), 0);
+
   const handleCheckout = () => {
     if (cartItems.length === 0) {
       alert("Your cart is empty! Add items before proceeding.");
       return;
     }
-    navigate("/checkout");
-  };
 
-  const totalPrice = cartItems.reduce((total, item) => total + item.price, 0);
+    navigate("/checkout", { state: { cartItems, totalAmount: totalPrice } });
+  };
 
   return (
     <OrderContainer>
-      <OrderTitle>Review Your Order</OrderTitle>
-
+      <OrderTitle>Review Your Cart</OrderTitle>
       {cartItems.length === 0 ? (
         <p>Your cart is empty. Add some delicious burgers!</p>
       ) : (
         <>
           <OrderList>
-            {cartItems.map((item) => (
-              <OrderItem key={item.id}>
-                <span>{item.name} - ${item.price.toFixed(2)}</span>
+            {cartItems.map((item, index) => (
+              <OrderItem key={item.id || `cart-item-${index}`}>
+                <span>
+                  {item.name} - ${item.price.toFixed(2)} {item.quantity ? `x ${item.quantity}` : ""}
+                </span>
                 <RemoveButton onClick={() => removeFromCart(item.id)}>Remove</RemoveButton>
               </OrderItem>
             ))}
@@ -107,12 +112,24 @@ const OrderPage = ({ cartItems, removeFromCart }) => {
 OrderPage.propTypes = {
   cartItems: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.string.isRequired,
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       name: PropTypes.string.isRequired,
       price: PropTypes.number.isRequired,
+      quantity: PropTypes.number,
     })
-  ).isRequired, // Validate that cartItems is an array of objects with specific properties
-  removeFromCart: PropTypes.func.isRequired, // Validate that removeFromCart is a function
+  ).isRequired,
+  removeFromCart: PropTypes.func.isRequired,
+};
+
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<OrderPage />} />
+        <Route path="/checkout" element={<CheckoutPageWithStripe />} />
+      </Routes>
+    </Router>
+  );
 };
 
 export default OrderPage;

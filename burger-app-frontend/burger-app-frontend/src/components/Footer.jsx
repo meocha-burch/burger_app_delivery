@@ -50,8 +50,8 @@ const Footer = () => {
     <FooterContainer>
       <GoldLine />
       <FooterLinks>
-        <FooterLink to="/privacy">Privacy Policy</FooterLink>
-        <FooterLink to="/terms">Terms of Service</FooterLink>
+        <FooterLink to="/terms-of-service">Terms of Service</FooterLink>
+        <FooterLink to="/privacy-policy">Privacy Policy</FooterLink>
         <FooterLink to="/contact">Contact Us</FooterLink>
       </FooterLinks>
       <CopyrightText>© {new Date().getFullYear()} Burger Quest. All rights reserved.</CopyrightText>

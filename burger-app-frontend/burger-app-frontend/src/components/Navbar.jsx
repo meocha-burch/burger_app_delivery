@@ -1,26 +1,28 @@
-import React, { useContext } from "react";
+import React from "react";
 import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../assets/delivery-logo.jpg";
+import logo from "../assets/Logo1.png";
 import PropTypes from "prop-types";
-import { AuthContext } from "../context/AuthContext"; // Ensure this matches the export in AuthContext
+import { useAuth } from "../context/AuthContext";  // Correct way to import useAuth
 
 const NavbarContainer = styled.nav`
   background-color: black;
   padding: 15px 10%;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 10px;
   box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.1);
 `;
 
 const Logo = styled.img`
   width: 120px;
   cursor: pointer;
+  align-self: center;
 `;
 
 const NavLinks = styled.div`
   display: flex;
+  justify-content: center;
   gap: 20px;
 `;
 
@@ -37,6 +39,12 @@ const NavLink = styled(Link)`
   }
 `;
 
+const UserNavLinks = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+`;
+
 const CartBadge = styled.span`
   background: red;
   color: white;
@@ -48,9 +56,7 @@ const CartBadge = styled.span`
 
 const Navbar = ({ cartCount }) => {
   const navigate = useNavigate(); // Used for Logout redirection
-  const authContext = useContext(AuthContext); // Handle undefined context safely
-  const user = authContext?.user; // Avoids destructuring error if context is undefined
-  const logout = authContext?.logout; // Logout function from context
+  const { user, logout } = useAuth(); // Using useAuth to access user and logout from context
 
   const handleLogout = () => {
     if (logout) {
@@ -65,20 +71,27 @@ const Navbar = ({ cartCount }) => {
       <NavLinks>
         <NavLink to="/">Home</NavLink>
         <NavLink to="/menu">Menu</NavLink>
-        {user && <NavLink to="/profile">Profile</NavLink>}
-        <NavLink to="/cart">
-          Cart {cartCount > 0 && <CartBadge>{cartCount}</CartBadge>}
-        </NavLink>
         <NavLink to="/order">Order</NavLink>
         <NavLink to="/contact">Contact</NavLink>
-        {user ? (
-          <NavLink as="button" onClick={handleLogout} style={{ background: "none", border: "none", color: "white", cursor: "pointer" }}>
+      </NavLinks>
+
+      {/* User-related links */}
+      <UserNavLinks>
+        {!user ? (
+          <>
+            <NavLink to="/login">Login</NavLink>
+            <NavLink to="/register">Sign Up</NavLink>
+          </>
+        ) : (
+          <NavLink
+            as="button"
+            onClick={handleLogout}
+            style={{ background: "none", border: "none", color: "white", cursor: "pointer" }}
+          >
             Logout
           </NavLink>
-        ) : (
-          <NavLink to="/login">Login</NavLink>
         )}
-      </NavLinks>
+      </UserNavLinks>
     </NavbarContainer>
   );
 };

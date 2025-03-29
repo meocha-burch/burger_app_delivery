@@ -1,91 +1,97 @@
-import React from "react"; 
+import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import PropTypes from "prop-types"; // Import PropTypes for validation
+import CheckoutForm from "../components/CheckoutForm"; // Import CheckoutForm
 
 const CheckoutContainer = styled.div`
-  background-color: #f8f9fa;
+  background-color: black;
+  color: white;
   min-height: 100vh;
-  padding: 40px 10%;
-`;
-
-const Title = styled.h1`
+  padding: 40px 20px;
   text-align: center;
+`;
+
+const CheckoutTitle = styled.h1`
+  font-size: 2.5rem;
   margin-bottom: 20px;
+  color: #ffcc00;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 `;
 
-const CheckoutItems = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+const CartItemsList = styled.ul`
+  list-style-type: none; /* Remove bullet points */
+  padding: 0;
+  margin: 20px 0;
+  text-align: left;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 `;
 
-const CheckoutItem = styled.div`
+const CartItem = styled.li`
+  background-color: #222;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px;
-  background: white;
+`;
+
+const CartItemText = styled.span`
+  font-size: 1.1rem;
+`;
+
+const TotalAmountContainer = styled.div`
+  background-color: #333;
+  padding: 20px;
+  margin-top: 30px;
   border-radius: 8px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
 `;
 
-const ItemDetails = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 15px;
+const TotalText = styled.h2`
+  color: #ffcc00;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
 `;
 
-const ItemImage = styled.img`
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-`;
+const CheckoutPage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { cartItems, totalAmount } = location.state || { cartItems: [], totalAmount: 0 };
 
-const ItemText = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
+  console.log("Cart Items in Checkout Page:", cartItems);
+  console.log("Total Amount in Checkout Page:", totalAmount);
 
-const ItemName = styled.h3`
-  margin: 0;
-`;
-
-const ItemPrice = styled.p`
-  margin: 0;
-  color: #28a745;
-  font-weight: bold;
-`;
-
-const CheckoutPage = ({ cartItems, handleSubmit }) => {
   return (
     <CheckoutContainer>
-      <Title>Checkout</Title>
-      {cartItems.length === 0 ? (
-        <p>Your cart is empty.</p>
-      ) : (
-        <CheckoutItems>
-          {cartItems.map((item, index) => (
-            <CheckoutItem key={index}>
-              <ItemDetails>
-                <ItemImage src={item.image} alt={item.name} />
-                <ItemText>
-                  <ItemName>{item.name}</ItemName>
-                  <ItemPrice>${item.price}</ItemPrice>
-                </ItemText>
-              </ItemDetails>
-            </CheckoutItem>
-          ))}
-        </CheckoutItems>
-      )}
-      <button onClick={handleSubmit}>Submit Order</button>
+      <CheckoutTitle>Complete Your Payment</CheckoutTitle>
+      <h2>Review Your Cart</h2>
+
+      <CartItemsList>
+        {cartItems.map((item, index) => (
+          <CartItem key={index}>
+            <CartItemText>
+              {item.name} - ${item.price.toFixed(2)} {item.quantity ? `x ${item.quantity}` : ""}
+            </CartItemText>
+          </CartItem>
+        ))}
+      </CartItemsList>
+
+      <TotalAmountContainer>
+        <TotalText>Total: ${totalAmount.toFixed(2)}</TotalText>
+      </TotalAmountContainer>
+
+      {/* Add CheckoutForm here */}
+      <CheckoutForm cartItems={cartItems} />
     </CheckoutContainer>
   );
-};
-
-// Prop validation for CheckoutPage
-CheckoutPage.propTypes = {
-  cartItems: PropTypes.array.isRequired, // Ensure cartItems is an array
-  handleSubmit: PropTypes.func.isRequired, // Ensure handleSubmit is a function and required
 };
 
 export default CheckoutPage;

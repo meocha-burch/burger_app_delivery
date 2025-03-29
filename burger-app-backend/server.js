@@ -5,14 +5,15 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js"; // Import DB connection function
-import authRoutes from "./routes/auth.js";
-import menuRoutes from "./routes/menu.js"; // ✅ Import menu routes
-import Stripe from "stripe"; // ✅ Import Stripe
+import authRoutes from "./routes/auth.js"; // Import authentication routes using ES Modules
+import menuRoutes from "./routes/menu.js"; // Import menu routes using ES Modules
+import Stripe from "stripe"; // Import Stripe
 import nodemailer from "nodemailer"; // Import nodemailer to send emails
+import mongoose from 'mongoose';
 
 const app = express();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY); // ✅ Initialize Stripe
-const PORT = process.env.PORT || 5001; // ✅ Define PORT here
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY); // Initialize Stripe
+const PORT = process.env.PORT || 5001; // Define PORT here
 
 // Middleware
 app.use(express.json());
@@ -23,6 +24,13 @@ app.use(
     credentials: true,
   })
 );
+
+// Generic error handler (catch unexpected errors)
+app.use((err, req, res, next) => {
+  console.error("❌ Error:", err.message);
+  res.status(500).json({ message: "Server error, please try again later." });
+});
+
 
 // Debugging: Check if MONGO_URI is loaded
 console.log("MONGO_URI from .env:", process.env.MONGO_URI);
@@ -78,8 +86,8 @@ app.post("/api/contact", async (req, res) => {
 });
 
 // Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/menu", menuRoutes); // ✅ Keep existing routes
+app.use("/api/auth", authRoutes); // Authentication routes (signup/login)
+app.use("/api/menu", menuRoutes); // Menu routes (for handling menu items)
 
 // ✅ Stripe Payment Route to Create PaymentIntent
 app.post("/api/create-payment-intent", async (req, res) => {

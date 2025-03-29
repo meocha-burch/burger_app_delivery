@@ -1,12 +1,17 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
-import logo from "../assets/delivery-logo.jpg"; // Ensure correct path
-import burger from "../assets/main-burger.jpg"; // Ensure correct path
+import burger from "../assets/main-burger.jpg";
 
-// Smooth fade-in animation
+// Fade-in animation
 const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 `;
 
 const HomeContainer = styled.div`
@@ -23,7 +28,7 @@ const HomeContainer = styled.div`
 const Image = styled.img`
   width: 40%;
   max-width: 350px;
-  animation: ${fadeIn} 1s ease-in-out;
+  animation: ${fadeIn} 1.5s ease-in-out;  // Apply fade-in animation here
 `;
 
 const Content = styled.div`
@@ -37,7 +42,6 @@ const Tagline = styled.h1`
   font-size: 2rem;
   font-weight: bold;
   line-height: 1.2;
-  animation: ${fadeIn} 1.2s ease-in-out;
 `;
 
 const Button = styled.button`
