@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import API from "../api"; // Import Axios instance
 
-const RegisterContainer = styled.div`
+const SignupContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -13,7 +13,7 @@ const RegisterContainer = styled.div`
   color: white;
 `;
 
-const RegisterForm = styled.form`
+const SignupForm = styled.form`
   background: #222;
   padding: 20px;
   border-radius: 8px;
@@ -53,7 +53,7 @@ const ErrorMessage = styled.p`
   margin-top: 5px;
 `;
 
-const RegisterPage = () => {
+const SignupPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
@@ -72,7 +72,7 @@ const RegisterPage = () => {
     }
 
     try {
-      await API.post("/auth/register", formData); // 🔥 Adjust API route if needed
+      await API.post("/auth/signup", formData); // 🔥 Adjusted API route
       navigate("/login"); // Redirect to login page after successful registration
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed. Try again.");
@@ -80,17 +80,17 @@ const RegisterPage = () => {
   };
 
   return (
-    <RegisterContainer>
-      <h2>Register</h2>
-      <RegisterForm onSubmit={handleSubmit}>
+    <SignupContainer>
+      <h2>Sign Up</h2>
+      <SignupForm onSubmit={handleSubmit}>
         <Input type="text" name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} required />
         <Input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
         <Input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required />
         {error && <ErrorMessage>{error}</ErrorMessage>}
         <Button type="submit">Sign Up</Button>
-      </RegisterForm>
-    </RegisterContainer>
+      </SignupForm>
+    </SignupContainer>
   );
 };
 
-export default RegisterPage;
+export default SignupPage;

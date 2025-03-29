@@ -1,7 +1,7 @@
 import React from 'react'; // Ensure React is imported for JSX
 import PropTypes from 'prop-types'; // Import PropTypes for validation
 import { Navigate } from 'react-router-dom';
-import useAuth from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext'; // Import useAuth hook from context
 
 const PrivateRoute = ({ children }) => {
   const { user } = useAuth(); // Access the user from the context
@@ -20,4 +20,3 @@ PrivateRoute.propTypes = {
 };
 
 export default PrivateRoute;
-

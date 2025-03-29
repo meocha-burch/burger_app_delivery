@@ -1,7 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import PropTypes from "prop-types"; // Import PropTypes for validation
+import PropTypes from "prop-types";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import CheckoutPageWithStripe from "../pages/CheckoutPage"; 
 
 const OrderContainer = styled.div`
   background-color: black;
@@ -20,8 +22,9 @@ const OrderTitle = styled.h1`
 `;
 
 const OrderList = styled.ul`
-  list-style: none;
+  list-style-type: none;
   padding: 0;
+  margin: 0;
 `;
 
 const OrderItem = styled.li`
@@ -75,13 +78,12 @@ const OrderPage = ({ cartItems, removeFromCart }) => {
       return;
     }
 
-    navigate("/checkout", { state: { cartItems, totalPrice } }); // Use totalPrice instead of totalAmount
+    navigate("/checkout", { state: { cartItems, totalAmount: totalPrice } });
   };
 
   return (
     <OrderContainer>
-      <OrderTitle>Review Your Order</OrderTitle>
-
+      <OrderTitle>Review Your Cart</OrderTitle>
       {cartItems.length === 0 ? (
         <p>Your cart is empty. Add some delicious burgers!</p>
       ) : (
@@ -110,13 +112,24 @@ const OrderPage = ({ cartItems, removeFromCart }) => {
 OrderPage.propTypes = {
   cartItems: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired, // Ensure id is unique
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       name: PropTypes.string.isRequired,
       price: PropTypes.number.isRequired,
-      quantity: PropTypes.number, // Optional quantity field
+      quantity: PropTypes.number,
     })
   ).isRequired,
   removeFromCart: PropTypes.func.isRequired,
+};
+
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<OrderPage />} />
+        <Route path="/checkout" element={<CheckoutPageWithStripe />} />
+      </Routes>
+    </Router>
+  );
 };
 
 export default OrderPage;
