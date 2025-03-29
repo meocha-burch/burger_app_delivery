@@ -1,11 +1,11 @@
-import { defineConfig } from "eslint/config";
-import globals from "globals";
-import js from "@eslint/js";
-import pluginReact from "eslint-plugin-react";
+import { defineConfig } from 'eslint/config';
+import globals from 'globals';
+import js from '@eslint/js';
+import pluginReact from 'eslint-plugin-react';
 
 export default defineConfig([
   {
-    files: ["**/*.{js,mjs,cjs,jsx}"],
+    files: ['**/*.{js,mjs,cjs,jsx}'],
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -18,13 +18,12 @@ export default defineConfig([
       react: pluginReact,
     },
     rules: {
-      "no-undef": "error", // Ensures undefined variables are caught
-      "react/react-in-jsx-scope": "off", // Not needed in modern React
+      'no-undef': 'error', // Ensures undefined variables are caught
+      'react/react-in-jsx-scope': 'off', // Not needed in modern React
     },
     extends: [
-      "eslint:recommended",
-      "plugin:react/recommended",
+      'eslint:recommended',
+      'plugin:react/recommended',
     ],
   },
 ]);
-
